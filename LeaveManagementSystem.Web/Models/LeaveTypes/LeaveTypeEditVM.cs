@@ -2,10 +2,8 @@
 
 namespace LeaveManagementSystem.Web.Models.LeaveTypes
 {
-    public class LeaveTypeEditVM
+    public class LeaveTypeEditVM : BaseLeaveTypeVM
     {
-        public int Id { get; set; }
-
         [Required]
         [Length(4, 150, ErrorMessage = "Error largo de texto")]
         public string Name { get; set; } = string.Empty;

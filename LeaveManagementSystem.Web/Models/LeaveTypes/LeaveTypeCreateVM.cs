@@ -10,6 +10,7 @@ namespace LeaveManagementSystem.Web.Models.LeaveTypes
 
         [Required]
         [Range(1, 90)]
+        [Display(Name = "Maxima asignacion de dias")]
         public int Days { get; set; }   
     }
 }

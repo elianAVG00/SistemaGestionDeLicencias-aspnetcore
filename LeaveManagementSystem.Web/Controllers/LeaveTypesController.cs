@@ -64,6 +64,11 @@ namespace LeaveManagementSystem.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(LeaveTypeCreateVM leaveTypeCreate)
         {
+            if (await CheckIfLeaveTypeNameExists(leaveTypeCreate.Name))
+            {
+                ModelState.AddModelError(nameof(leaveTypeCreate.Name), "El nombre ya existe en la db");
+            }
+
             if (ModelState.IsValid)
             {
                 var leaveTypeData = _mapper.Map<LeaveType>(leaveTypeCreate);
@@ -73,6 +78,8 @@ namespace LeaveManagementSystem.Web.Controllers
             }
             return View(leaveTypeCreate);
         }
+
+        
 
         // GET: LeaveTypes/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -103,6 +110,11 @@ namespace LeaveManagementSystem.Web.Controllers
             if (id != leaveTypeEdit.Id)
             {
                 return NotFound();
+            }
+
+            if (await CheckIfLeaveTypeNameExistsForEdit(leaveTypeEdit))
+            {
+                ModelState.AddModelError(nameof(leaveTypeEdit.Name), "El nombre ya existe en la db");
             }
 
             if (ModelState.IsValid)
@@ -143,8 +155,9 @@ namespace LeaveManagementSystem.Web.Controllers
             {
                 return NotFound();
             }
+            var viewData = _mapper.Map<LeaveTypeReadOnlyVM>(leaveType);
 
-            return View(leaveType);
+            return View(viewData);
         }
 
         // POST: LeaveTypes/Delete/5
@@ -165,6 +178,18 @@ namespace LeaveManagementSystem.Web.Controllers
         private bool LeaveTypeExists(int id)
         {
             return _context.LeaveTypes.Any(e => e.Id == id);
+        }
+
+        private async Task<bool> CheckIfLeaveTypeNameExists(string name)
+        {
+            var lowercaseName = name.ToLower();
+            return await _context.LeaveTypes.AnyAsync(x => x.Name.ToLower().Equals(lowercaseName));
+        }
+
+        private async Task<bool> CheckIfLeaveTypeNameExistsForEdit(LeaveTypeEditVM leaveTypeEdit)
+        {
+            var lowercaseName = leaveTypeEdit.Name.ToLower();
+            return await _context.LeaveTypes.AnyAsync(x => x.Name.ToLower().Equals(lowercaseName) && x.Id != leaveTypeEdit.Id);
         }
     }
 }
